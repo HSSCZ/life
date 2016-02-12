@@ -54,11 +54,7 @@ def readCells(display, path):
             if val == 'O':
                 c_ints[i] |= 1 << j
 
-    for i, v in enumerate(c_ints):
-        if len(c_ints) > BIT_LIMIT//2:
-            display[i+WIDTH//2] = v << 2
-        else:
-            display[i+WIDTH//2] = v << (BIT_LIMIT//2) - len(c_ints)
+    putPattern(display, c_ints)
 
 def wrapX(x, add):
     ''' Add to x index, wrapping around from WIDTH to 0 '''
@@ -119,14 +115,20 @@ def printDisplay(display):
             alive = bool(display[i] & (1 << bit))
             print('%2s' % '#' if alive else '  ', end='')
         print('\n')
+
+def putPattern(display, pattern):
+    ''' Put pattern on the display '''
+    shift_pos = (WIDTH // 2) - (len(pattern) // 2)
+
+    for i, v in enumerate(pattern):
+        display[i+shift_pos] = v
         
 def doStuff(display, pattern=None):
-    ''' Put pattern on center of display '''
+    ''' If pattern exists then put it on the board '''
     if os.path.exists(pattern):
         readCells(display, pattern)
     elif pattern in patterns.keys():
-        for i, v in enumerate(patterns[pattern]):
-            display[i+WIDTH//2] = v << (BIT_LIMIT//2) - len(patterns[pattern])
+        putPattern(display, patterns[pattern])
     else:
         raise Exception('Pattern does not exist: %s' % pattern)
         
@@ -144,7 +146,7 @@ def main(argv):
         os.system('cls' if os.name == 'nt' else 'clear')
         printDisplay(display)
         display = lifeStep(display)
-        sleep(1/12)
+        sleep(1/4)
 
 def usage():
     print('Usage: python3 life.py [pattern]')
