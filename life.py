@@ -13,7 +13,6 @@ from time import sleep
 
 # Fit game board in the current terminal
 term_size = shutil.get_terminal_size()
-
 WIDTH = term_size.columns // 2
 # Bits 1 through BIT_LIMIT are used as rows of a grid
 if os.name == 'nt':
@@ -118,12 +117,14 @@ def printDisplay(display):
 
 def putPattern(display, pattern):
     ''' Put pattern on the display '''
-    shift_pos = (WIDTH // 2) - (len(pattern) // 2)
+    # center position on display
+    horz_pos = (WIDTH // 2) - (len(pattern) // 2)
+    vert_pos = (BIT_LIMIT // 2) - ((len(bin(max(pattern))) - 2) // 2)
 
     for i, v in enumerate(pattern):
-        display[i+shift_pos] = v
+        display[i+horz_pos] = v << vert_pos
         
-def doStuff(display, pattern=None):
+def doStuff(display, pattern):
     ''' If pattern exists then put it on the board '''
     if os.path.exists(pattern):
         readCells(display, pattern)
@@ -131,7 +132,7 @@ def doStuff(display, pattern=None):
         putPattern(display, patterns[pattern])
     else:
         raise Exception('Pattern does not exist: %s' % pattern)
-        
+
 def main(argv):
     # print('w: %d, h: %d' % (WIDTH, BIT_LIMIT))
     display = [0 for x in range(WIDTH)]
