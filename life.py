@@ -11,6 +11,7 @@ import sys
 import shutil 
 from time import sleep
 
+# Fit game board in the current terminal
 term_size = shutil.get_terminal_size()
 
 WIDTH = term_size.columns // 2
@@ -36,8 +37,9 @@ patterns = {
 
 def readCells(display, path):
     ''' Read a cell pattern from the file at path and put it on the display '''
-    with open(os.path.join('cells', path)) as f:
-        cells = f.readlines()[2:]
+    if os.path.exists(path):
+        with open(path) as f:
+            cells = f.readlines()[2:]
 
     if len(cells) >= BIT_LIMIT:
         raise Exception('Pattern taller than board')
@@ -120,7 +122,7 @@ def printDisplay(display):
         
 def doStuff(display, pattern=None):
     ''' Put pattern on center of display '''
-    if os.path.exists(os.path.join('cells', pattern)):
+    if os.path.exists(pattern):
         readCells(display, pattern)
     elif pattern in patterns.keys():
         for i, v in enumerate(patterns[pattern]):
@@ -142,11 +144,11 @@ def main(argv):
         os.system('cls' if os.name == 'nt' else 'clear')
         printDisplay(display)
         display = lifeStep(display)
-        sleep(1/32)
+        sleep(1/12)
 
 def usage():
     print('Usage: python3 life.py [pattern]')
-    print('[pattern] is a built-in pattern or the name of a file in cells/')
+    print('[pattern] is a built-in pattern or the path to a cells file')
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
