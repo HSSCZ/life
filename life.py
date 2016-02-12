@@ -8,17 +8,9 @@ The x axis is the index in to the array, y axis is a bit position
 '''
 import os
 import sys
-import shutil 
 from time import sleep
 
-# Fit game board in the current terminal
-term_size = shutil.get_terminal_size()
-WIDTH = term_size.columns // 2
-# Bits 1 through BIT_LIMIT are used as rows of a grid
-if os.name == 'nt':
-    BIT_LIMIT = term_size.lines // 3
-else:
-    BIT_LIMIT = term_size.lines // 2
+from life import LifeDisplay
 
 # A few built in cell patterns
 patterns = {
@@ -40,9 +32,9 @@ def readCells(display, path):
         with open(path) as f:
             cells = f.readlines()[2:]
 
-    if len(cells) >= BIT_LIMIT:
+    if len(cells) >= display.height:
         raise Exception('Pattern taller than board')
-    elif len(cells[0]) >= WIDTH:
+    elif len(cells[0]) >= display.width:
         raise Exception('Pattern wider than board')
 
     cells = list(zip(*cells))
@@ -53,24 +45,24 @@ def readCells(display, path):
             if val == 'O':
                 c_ints[i] |= 1 << j
 
-    putPattern(display, c_ints)
+    display.putPattern(c_ints)
 
-def wrapX(x, add):
-    ''' Add to x index, wrapping around from WIDTH to 0 '''
+def wrapX(x, limit, add):
+    ''' Add to x index, wrapping around from limit to 0 '''
     new = x + add
     while new < 0:
-        new += WIDTH
-    while new >= WIDTH:
-        new -= WIDTH
+        new += limit
+    while new >=  limit:
+        new -= limit
     return new
 
-def wrapY(y, add):
-    ''' Add to y index (a bit location), wrapping around from BIT_LIMIT to 1 '''
+def wrapY(y, limit, add):
+    ''' Add to y index (a bit location), wrapping around from limit to 1 '''
     new = y + add
     while new < 1:
-        new += BIT_LIMIT 
-    while new > BIT_LIMIT:
-        new -= BIT_LIMIT
+        new += limit  
+    while new > limit:
+        new -= limit
     return new
 
 def isBit(n, bit):
@@ -84,15 +76,17 @@ def neighborCount(display, col, bit):
     for _col in range(-1, 2):
         for _bit in range(-1, 2):
             if _col or _bit:
-                if isBit(display[wrapX(col, _col)], wrapY(bit, _bit)):
+                nx = wrapX(col, display.width, _col)
+                ny = wrapY(bit, display.height, _bit)
+                if isBit(display()[nx], ny):
                     count += 1
     return count
 
 def lifeStep(display):
-    tmp_display = list(display)
+    tmp_display = list(display())
 
-    for col in range(len(display)):
-        for bit in range(1, BIT_LIMIT + 1):
+    for col in range(display.width):
+        for bit in range(1, display.height + 1):
             neighbors = neighborCount(display, col, bit)
             if neighbors == 2:
                 # Cell stays the same
@@ -107,47 +101,31 @@ def lifeStep(display):
                     tmp_display[col] &= ~(1 << (bit - 1))
 
     return tmp_display
-
-def printDisplay(display):
-    for bit in range(0, BIT_LIMIT):
-        for i in range(WIDTH):
-            alive = bool(display[i] & (1 << bit))
-            print('%2s' % '#' if alive else '  ', end='')
-        print('\n')
-
-def putPattern(display, pattern):
-    ''' Put pattern on the display '''
-    # center position on display
-    horz_pos = (WIDTH // 2) - (len(pattern) // 2)
-    vert_pos = (BIT_LIMIT // 2) - ((len(bin(max(pattern))) - 2) // 2)
-
-    for i, v in enumerate(pattern):
-        display[i+horz_pos] = v << vert_pos
         
 def doStuff(display, pattern):
     ''' If pattern exists then put it on the board '''
     if os.path.exists(pattern):
         readCells(display, pattern)
     elif pattern in patterns.keys():
-        putPattern(display, patterns[pattern])
+        display.putPattern(patterns[pattern])
     else:
         raise Exception('Pattern does not exist: %s' % pattern)
 
 def main(argv):
     # print('w: %d, h: %d' % (WIDTH, BIT_LIMIT))
-    display = [0 for x in range(WIDTH)]
-    doStuff(display, argv[1])
+    screen = LifeDisplay()
+    doStuff(screen, argv[1])
 
     while(1):
         # If all cells have died then wait a bit then reset the board
-        if sum(display) == 0:
+        if screen.isClear():
             sleep(10)
-            doStuff(display)
+            doStuff(screen)
             
         os.system('cls' if os.name == 'nt' else 'clear')
-        printDisplay(display)
-        display = lifeStep(display)
-        sleep(1/4)
+        screen.printDisplay()
+        screen.display = lifeStep(screen)
+        sleep(1/16)
 
 def usage():
     print('Usage: python3 life.py [pattern]')
