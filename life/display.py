@@ -2,6 +2,11 @@ import os
 import shutil
 
 class LifeDisplay(object):
+    '''
+    LifeDisplay is a list of numbers with each bit of a number representing a cell
+
+    The x axis is the index in to the array, y axis is a bit position
+    '''
     def __init__(self):
         term_size = shutil.get_terminal_size()
 
@@ -18,6 +23,11 @@ class LifeDisplay(object):
         return self.display
 
     def putPattern(self, pattern):
+        if len(pattern) >= self.width:
+            raise Exception('Pattern wider than board')
+        elif max(pattern) > 1 << self.height:
+            raise Exception('Pattern taller than board')
+
         # get the center of the display
         horz_pos = (self.width // 2) - (len(pattern) // 2)
         vert_pos = (self.height // 2) - ((len(bin(max(pattern))) - 2) // 2)
@@ -25,7 +35,7 @@ class LifeDisplay(object):
         for i, v in enumerate(pattern):
             self.display[i+horz_pos] = v << vert_pos
 
-    def clearDisply(self):
+    def clearDisplay(self):
         self.display = [0 for x in range(self.width)]
 
     def printDisplay(self):

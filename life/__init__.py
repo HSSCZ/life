@@ -1,1 +1,1 @@
-from .display import LifeDisplay
+from .controller import Life
