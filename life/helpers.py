@@ -15,12 +15,13 @@ patterns = {
     }
 
 def readCells(display, path):
-    ''' Read a cell pattern from the file at path
-        Return the pattern as an int array
+    '''
+    Read a cell pattern from the file at path
+    Return the pattern as an int array
 
-        Args:
-        display: LifeDisplay object
-        path: path to cells file
+    Args:
+    display: LifeDisplay object
+    path: path to cells file
     '''
     if os.path.exists(path):
         with open(path) as f:
@@ -56,6 +57,55 @@ def wrapY(y, limit, add):
     return new
 
 def isBit(n, bit):
-    if (n & (1 << (bit - 1))):
+    ''' Return True if bit in n is on '''
+    if n & (1 << (bit - 1)):
         return True
     return False
+
+def _find_getch():
+    ''' Return a getch function for the current platform '''
+    if os.name == 'nt':
+        import msvcrt
+
+        def _ms_getch():
+            if msvcrt.kbhit():
+                ch = msvcrt.getch().decode()
+                return ch
+        return _ms_getch
+
+    if os.name == 'posix':
+        # POSIX system
+        import fcntl
+        import sys
+        import termios
+        import tty
+
+        def _getch():
+            ''' Get a character from stdin and do not echo it back '''
+            fd = sys.stdin.fileno()
+            oldterm = termios.tcgetattr(fd)
+            oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
+
+            # Set no echo
+            oldterm[3] &= ~termios.ECHO
+
+            newattr = termios.tcgetattr(fd)
+            # Set no echo
+            newattr[3] &= ~termios.ECHO
+            # Set noncanonical mode
+            newattr[3] &= ~termios.ICANON
+            termios.tcsetattr(fd, termios.TCSANOW, newattr)
+
+            fcntl.fcntl(fd, fcntl.F_SETFL, oldflags | os.O_NONBLOCK)
+
+            try:
+                ch = sys.stdin.read(1)
+            except IOError: # stdin is empty
+                pass
+            finally:
+                termios.tcsetattr(fd, termios.TCSANOW, oldterm)
+                fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
+            return ch
+        return _getch
+
+getch = _find_getch()
