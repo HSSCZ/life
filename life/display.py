@@ -39,6 +39,8 @@ class LifeDisplay(object):
         self.display = [0 for x in range(self.width)]
 
     def printDisplay(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
+
         for bit in range(0, self.height):
             for i in range(self.width):
                 alive = bool(self.display[i] & (1 << bit))

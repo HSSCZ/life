@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 '''
 life.py - Conway's Game of Life in a terminal
-
 '''
 import sys
 

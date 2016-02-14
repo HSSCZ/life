@@ -1,13 +1,19 @@
 import os
 from time import sleep
 
-from .helpers import patterns, readCells, wrapX, wrapY, isBit
+from .helpers import patterns, readCells, wrapX, wrapY, isBit, getch
 from .display import LifeDisplay
 
 class Life(object):
     def __init__(self, tickrate, initial_pattern):
+        '''
+        Args:
+        tickrate: game updates per second
+        initial_pattern: an item from helpers.patterns or path to cells file
+        '''
         self.display = LifeDisplay()
         self.tickrate = tickrate
+        self.state = 'running'
 
         if os.path.exists(initial_pattern):
             pattern = readCells(self.display, initial_pattern)
@@ -18,16 +24,70 @@ class Life(object):
             raise Exception('Pattern does not exist; %s' % initial_pattern)
 
     def run(self):
-       while(1):
-            if self.display.isClear():
-                sleep(3)
-                self.clearDisplay()
-                self.display.putPattern(initial_pattern)
-                
-            os.system('cls' if os.name == 'nt' else 'clear')
-            self.display.printDisplay()
-            self.lifeStep()
-            sleep(1/self.tickrate)
+        ''' Main loop '''
+        while(1):
+            if self.state == 'running':
+                while (1):
+                    if self.state != 'running':
+                        break
+                    if self.display.isClear():
+                        sleep(3)
+                        self.clearDisplay()
+                        self.display.putPattern(initial_pattern)
+
+                    self.display.printDisplay()
+                    self.lifeStep()
+                    self.checkInput()
+                    sleep(1/self.tickrate)
+
+            elif self.state == 'paused':
+                self.display.printDisplay()
+                print('Life paused . . .')
+                while(1):
+                    if self.state != 'paused':
+                        break
+                    self.checkInput()
+
+            else:
+                raise Exception('Invalid state: %s' % self.state)
+
+    def quit(self):
+        ''' Make sure terminal is in normal mode and exit '''
+        if os.name == 'posix':
+            os.system('stty sane')
+        exit(0)
+
+    def pause(self):
+        ''' Pause updating '''
+        self.state = 'paused'
+
+    def resume(self):
+        ''' Resume updating '''
+        self.state = 'running'
+
+    def checkInput(self):
+        c = getch()
+
+        if c == 'p':
+            self.pause()
+        elif c == 'q':
+            self.quit()
+        elif c == 'r':
+            self.resume()
+        elif c == 's':
+            if self.state == 'paused':
+                self.lifeStep()
+                self.display.printDisplay()
+                print('Life paused . . .')
+        elif c == '.':
+            if self.tickrate == 1:
+                self.tickrate = 4
+            else:
+                self.tickrate += 4
+        elif c == ',':
+            self.tickrate -= 4
+            if self.tickrate <= 0:
+                self.tickrate = 1
 
     def neighborCount(self, display, col, bit):
         ''' Check for living cells surrounding a location on the display '''
@@ -42,6 +102,7 @@ class Life(object):
         return count
 
     def lifeStep(self):
+        ''' Compute a step in life and update the display '''
         tmp_display = list(self.display())
 
         for col in range(self.display.width):
