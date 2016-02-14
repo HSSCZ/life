@@ -23,6 +23,7 @@ class LifeDisplay(object):
         return self.display
 
     def putPattern(self, pattern):
+        ''' Put pattern on the center of the display '''
         if len(pattern) >= self.width:
             raise Exception('Pattern wider than board')
         elif max(pattern) > 1 << self.height:
@@ -39,6 +40,7 @@ class LifeDisplay(object):
         self.display = [0 for x in range(self.width)]
 
     def printDisplay(self):
+        ''' Clear the screen and print the display '''
         os.system('cls' if os.name == 'nt' else 'clear')
 
         for bit in range(0, self.height):

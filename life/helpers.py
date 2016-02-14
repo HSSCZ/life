@@ -58,9 +58,7 @@ def wrapY(y, limit, add):
 
 def isBit(n, bit):
     ''' Return True if bit in n is on '''
-    if n & (1 << (bit - 1)):
-        return True
-    return False
+    return True if n & (1 << (bit - 1)) else False
 
 def _find_getch():
     ''' Return a getch function for the current platform '''
