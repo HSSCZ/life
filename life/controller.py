@@ -1,4 +1,5 @@
 import os
+import time
 from time import sleep
 
 if os.name == 'nt':
@@ -32,6 +33,8 @@ class Life(object):
         ''' Main loop '''
         while(1):
             if self.state == 'running':
+                last_time = time.time()
+
                 while (1):
                     if self.state != 'running':
                         break
@@ -40,10 +43,13 @@ class Life(object):
                         self.clearDisplay()
                         self.display.putPattern(initial_pattern)
 
-                    self.printGame()
-                    self.lifeStep()
+                    cur_time = time.time()
+                    if cur_time - last_time >= 1/self.tickrate:
+                        self.printGame()
+                        self.lifeStep()
+                        last_time = time.time()
                     self.checkInput()
-                    sleep(1/self.tickrate)
+
             elif self.state == 'paused':
                 self.printGame()
                 while(1):
@@ -51,6 +57,7 @@ class Life(object):
                         break
                     if self.checkInput():
                         self.printGame()
+
             else:
                 raise Exception('Invalid state: %s' % self.state)
 
