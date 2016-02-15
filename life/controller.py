@@ -88,7 +88,7 @@ class Life(object):
                  'tickrate:%s\n'
                  '%s') % (w,h,p,t,s)
         if os.name == 'nt':
-            write_ms32(stats[5:], 0, 0)
+            write_ms32(stats[6:], 0, 0)
         else:
             print(stats)
 
