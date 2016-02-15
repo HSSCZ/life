@@ -72,15 +72,14 @@ def _find_getch():
         return _ms_getch
 
     if os.name == 'posix':
-        # POSIX system
         import fcntl
         import sys
         import termios
-        import tty
 
         def _getch():
             ''' Get a character from stdin and do not echo it back '''
             fd = sys.stdin.fileno()
+
             oldterm = termios.tcgetattr(fd)
             oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
 
@@ -98,6 +97,7 @@ def _find_getch():
             except IOError: # stdin is empty
                 pass
             finally:
+                # Set terminal to original settings
                 termios.tcsetattr(fd, termios.TCSANOW, oldterm)
                 fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
             return ch
