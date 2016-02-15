@@ -84,9 +84,6 @@ def _find_getch():
             oldterm = termios.tcgetattr(fd)
             oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
 
-            # Set no echo
-            oldterm[3] &= ~termios.ECHO
-
             newattr = termios.tcgetattr(fd)
             # Set no echo
             newattr[3] &= ~termios.ECHO
