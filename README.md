@@ -7,6 +7,8 @@ Usage: `life.py [pattern]` where `[pattern]` is a built-in pattern
 
 The game has a few controls:
 
+`t` show stats
+
 `.` increase tickrate
 
 `,` decrease tickrate
