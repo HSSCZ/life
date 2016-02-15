@@ -1,6 +1,9 @@
 import os
 from time import sleep
 
+if os.name == 'nt':
+    from .helpers import write_ms32
+
 from .helpers import patterns, readCells, wrapX, wrapY, isBit, getch
 from .display import LifeDisplay
 
@@ -14,6 +17,8 @@ class Life(object):
         self.display = LifeDisplay()
         self.tickrate = tickrate
         self.state = 'running'
+        self.steps = 0
+        self.show_stats = False
 
         if os.path.exists(initial_pattern):
             pattern = readCells(self.display, initial_pattern)
@@ -35,26 +40,25 @@ class Life(object):
                         self.clearDisplay()
                         self.display.putPattern(initial_pattern)
 
-                    self.display.printDisplay()
+                    self.printGame()
                     self.lifeStep()
                     self.checkInput()
                     sleep(1/self.tickrate)
-
             elif self.state == 'paused':
-                self.display.printDisplay()
-                print('Life paused . . .')
+                self.printGame()
                 while(1):
                     if self.state != 'paused':
                         break
-                    self.checkInput()
-
+                    if self.checkInput():
+                        self.printGame()
             else:
                 raise Exception('Invalid state: %s' % self.state)
 
     def quit(self):
-        ''' Make sure terminal is in normal mode and exit '''
+        ''' Make sure terminal is in normal mode, clear it, and exit '''
         if os.name == 'posix':
             os.system('stty sane')
+        os.system('cls' if os.name == 'nt' else 'clear')
         exit(0)
 
     def pause(self):
@@ -64,6 +68,29 @@ class Life(object):
     def resume(self):
         ''' Resume updating '''
         self.state = 'running'
+
+    def printGame(self):
+        self.display.printDisplay()
+        if self.show_stats:
+            self._printStats()
+
+    def _printStats(self):
+        ''' Print some stats on top of the display '''
+        w = self.display.width
+        h = self.display.height
+        p = self.steps
+        t = self.tickrate
+        s = self.state
+        stats = ('\x1b[0;0f' # print at 0,0
+                 'w:%s\n'
+                 'h:%s\n'
+                 'steps:%s\n'
+                 'tickrate:%s\n'
+                 '%s') % (w,h,p,t,s)
+        if os.name == 'nt':
+            write_ms32(stats[5:], 0, 0)
+        else:
+            print(stats)
 
     def checkInput(self):
         c = getch()
@@ -77,17 +104,22 @@ class Life(object):
         elif c == 's':
             if self.state == 'paused':
                 self.lifeStep()
-                self.display.printDisplay()
-                print('Life paused . . .')
+        elif c == 't':
+            self.show_stats = not self.show_stats
         elif c == '.':
             if self.tickrate == 1:
                 self.tickrate = 4
             else:
                 self.tickrate += 4
+            if self.tickrate > 24:
+                self.tickrate = 24
         elif c == ',':
             self.tickrate -= 4
             if self.tickrate <= 0:
                 self.tickrate = 1
+        else:
+            return False
+        return True
 
     def neighborCount(self, display, col, bit):
         ''' Check for living cells surrounding a location on the display '''
@@ -120,4 +152,5 @@ class Life(object):
                     if isBit(self.display()[col], bit):
                         tmp_display[col] &= ~(1 << (bit - 1))
 
+        self.steps += 1
         self.display.display = tmp_display

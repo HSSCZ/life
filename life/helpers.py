@@ -1,5 +1,24 @@
 import os
 
+if os.name == 'nt':
+    import ctypes
+    from ctypes import c_long, c_wchar_p, c_ulong, c_void_p
+
+    # terminal output handle
+    th = ctypes.windll.kernel32.GetStdHandle(c_long(-11))
+
+    def move_cursor(x, y):
+        ''' Move the terminal cursor to the position x, y '''
+        v = (x + (y << 16))
+        ctypes.windll.kernel32.SetConsoleCursorPosition(th, c_ulong(v))
+
+    def write_ms32(s, x, y):
+        ''' Write the string s to the terminal at position x, y '''
+        move_cursor(x, y)
+        ctypes.windll.kernel32.WriteConsoleW(th, c_wchar_p(s),
+            c_ulong(len(s)),
+            c_void_p(), None)
+
 # A few built in cell patterns
 patterns = {
     'glider': [0x20, 0x10, 0x70],

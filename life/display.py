@@ -13,9 +13,9 @@ class LifeDisplay(object):
         self.width = term_size.columns // 2
 
         if os.name == 'nt':
-            self.height = term_size.lines // 3
-        else:
             self.height = term_size.lines // 2
+        else:
+            self.height = term_size.lines
 
         self.display = [0 for x in range(self.width)]
 
@@ -47,7 +47,7 @@ class LifeDisplay(object):
             for i in range(self.width):
                 alive = bool(self.display[i] & (1 << bit))
                 print('%2s' % '#' if alive else '  ', end='')
-            print('\n')
+            print()
 
     def isClear(self):
         return False if sum(self()) else True
