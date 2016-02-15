@@ -19,6 +19,7 @@ class Life(object):
         self.tickrate = tickrate
         self.state = 'running'
         self.steps = 0
+        self.runtime = time.time()
         self.show_stats = False
 
         if os.path.exists(initial_pattern):
@@ -86,14 +87,16 @@ class Life(object):
         w = self.display.width
         h = self.display.height
         p = self.steps
+        r = time.time() - self.runtime
         t = self.tickrate
         s = self.state
         stats = ('\x1b[0;0f' # print at 0,0
                  'w:%s\n'
                  'h:%s\n'
                  'steps:%s\n'
+                 'runtime:%.1f\n'
                  'tickrate:%s\n'
-                 '%s') % (w,h,p,t,s)
+                 '%s') % (w,h,p,r,t,s)
         if os.name == 'nt':
             write_ms32(stats[6:], 0, 0)
         else:
