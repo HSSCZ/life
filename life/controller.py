@@ -35,7 +35,6 @@ class Life(object):
         while(1):
             if self.state == 'running':
                 last_time = time.time()
-
                 while (1):
                     if self.state != 'running':
                         break
@@ -91,12 +90,17 @@ class Life(object):
         t = self.tickrate
         s = self.state
         stats = ('\x1b[0;0f' # print at 0,0
-                 'w:%s\n'
-                 'h:%s\n'
-                 'steps:%s\n'
-                 'runtime:%.1f\n'
-                 'tickrate:%s\n'
-                 '%s') % (w,h,p,r,t,s)
+                 'w:%d\n'
+                 'h:%d\n'
+                 'steps:%d\n'
+                 # 'runtime:%.1f\n'
+                 'tickrate:%d\n'
+                 '%s') % (w,
+                          h,
+                          p,
+                          # r,
+                          t,
+                          s)
         if os.name == 'nt':
             write_ms32(stats[6:], 0, 0)
         else:
