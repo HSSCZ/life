@@ -10,6 +10,8 @@ class LifeDisplay(object):
     def __init__(self):
         term_size = shutil.get_terminal_size()
 
+        # divided by two because cells are printed two wide
+        # ie ' #' for a live cell
         self.width = term_size.columns // 2
 
         if os.name == 'nt':
@@ -25,9 +27,9 @@ class LifeDisplay(object):
     def putPattern(self, pattern):
         ''' Put pattern on the center of the display '''
         if len(pattern) >= self.width:
-            raise Exception('Pattern wider than board')
+            raise Exception('Pattern wider than display')
         elif max(pattern) > 1 << self.height:
-            raise Exception('Pattern taller than board')
+            raise Exception('Pattern taller than display')
 
         # get the center of the display
         horz_pos = (self.width // 2) - (len(pattern) // 2)
@@ -43,11 +45,14 @@ class LifeDisplay(object):
         ''' Clear the screen and print the display '''
         os.system('cls' if os.name == 'nt' else 'clear')
 
+        display_string = ''
         for bit in range(0, self.height):
+            w_string = ''
             for i in range(self.width):
                 alive = bool(self.display[i] & (1 << bit))
-                print('%2s' % '#' if alive else '  ', end='')
-            print()
+                w_string += '%2s' % '#' if alive else '  '
+            display_string += w_string + '\n'
+        print(display_string)
 
     def isClear(self):
         return False if sum(self()) else True
