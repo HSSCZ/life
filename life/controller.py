@@ -15,11 +15,10 @@ class Life(object):
         tickrate: game updates per second
         initial_pattern: an item from helpers.patterns or path to cells file
         '''
-        self.display = LifeDisplay()
+        self.display = LifeDisplay('\u2b1b\u2b1c', '\x1b[38;5;39m')
         self.tickrate = tickrate
         self.state = 'running'
         self.steps = 0
-        self.runtime = time.time()
         self.show_stats = False
 
         if os.path.exists(initial_pattern):
@@ -40,8 +39,8 @@ class Life(object):
                         break
                     if self.display.isClear():
                         sleep(3)
-                        self.clearDisplay()
-                        self.display.putPattern(initial_pattern)
+                        self.display.clearDisplay()
+                        self.display.putPattern(patterns['lwss'])
 
                     cur_time = time.time()
                     if cur_time - last_time >= 1/self.tickrate:
@@ -86,21 +85,14 @@ class Life(object):
         w = self.display.width
         h = self.display.height
         p = self.steps
-        r = time.time() - self.runtime
         t = self.tickrate
         s = self.state
         stats = ('\x1b[0;0f' # print at 0,0
                  'w:%d\n'
                  'h:%d\n'
                  'steps:%d\n'
-                 # 'runtime:%.1f\n'
                  'tickrate:%d\n'
-                 '%s') % (w,
-                          h,
-                          p,
-                          # r,
-                          t,
-                          s)
+                 '%s') % (w,h,p,t,s)
         if os.name == 'nt':
             write_ms32(stats[6:], 0, 0)
         else:
