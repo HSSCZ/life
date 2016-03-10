@@ -33,13 +33,12 @@ patterns = {
     'R-pentomino': [0x40, 0xe0, 0x80]
     }
 
-def readCells(display, path):
+def readCells(path):
     '''
     Read a cell pattern from the file at path
     Return the pattern as an int array
 
     Args:
-    display: LifeDisplay object
     path: path to cells file
     '''
     if os.path.exists(path):
@@ -52,7 +51,7 @@ def readCells(display, path):
 
     for i, row in enumerate(cells):
         for j, val in enumerate(row):
-            if val == 'O':
+            if val == 'O': # capital letter o
                 c_ints[i] |= 1 << j
 
     return c_ints

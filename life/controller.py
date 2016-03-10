@@ -22,7 +22,7 @@ class Life(object):
         self.show_stats = False
 
         if os.path.exists(initial_pattern):
-            pattern = readCells(self.display, initial_pattern)
+            pattern = readCells(initial_pattern)
             self.display.putPattern(pattern)
         elif initial_pattern in patterns.keys():
             self.display.putPattern(patterns[initial_pattern])
@@ -117,8 +117,8 @@ class Life(object):
                 self.tickrate = 4
             else:
                 self.tickrate += 4
-            if self.tickrate > 24:
-                self.tickrate = 24
+            if self.tickrate > 36:
+                self.tickrate = 36
         elif c == ',':
             self.tickrate -= 4
             if self.tickrate <= 0:
@@ -144,6 +144,13 @@ class Life(object):
         tmp_display = list(self.display())
 
         for col in range(self.display.width):
+            # If previous, current, and next column are empty then we don't
+            # need to do anything
+            if (self.display()[col] == 0
+                and self.display()[wrapX(col, self.display.width, -1)] == 0
+                and self.display()[wrapX(col, self.display.width,  1)] == 0):
+                continue
+
             for bit in range(1, self.display.height + 1):
                 neighbors = self.neighborCount(self.display, col, bit)
                 if neighbors == 2:

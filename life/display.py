@@ -44,7 +44,7 @@ class LifeDisplay(object):
 
         # get the center of the display
         horz_pos = (self.width // 2) - (len(pattern) // 2)
-        vert_pos = (self.height // 2) - ((len(bin(max(pattern))) - 2) // 2)
+        vert_pos = (self.height // 2) - (len(bin(max(pattern))[2:]) // 2)
 
         for i, v in enumerate(pattern):
             self.display[i+horz_pos] = v << vert_pos
