@@ -56,12 +56,12 @@ class LifeDisplay(object):
         ''' Clear the screen and print the display '''
         os.system('cls' if os.name == 'nt' else 'clear')
 
-        display_string = '%s' % self.cell_color
+        display_string = '{}'.format(self.cell_color)
         for bit in range(0, self.height):
             w_string = ''
             for i in range(self.width):
                 alive = bool(self.display[i] & (1 << bit))
-                w_string += '%2s' % self.cell_symbol if alive else '  '
+                w_string += '{:>2.2}'.format(self.cell_symbol if alive else '  ')
             display_string += w_string + '\n'
         display_string += '' if os.name == 'nt' else '\x1b[0m'
         print(display_string)

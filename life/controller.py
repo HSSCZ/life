@@ -29,7 +29,7 @@ class Life(object):
         elif initial_pattern in patterns.keys():
             self.display.putPattern(patterns[initial_pattern])
         else:
-            raise Exception('Pattern does not exist; %s' % initial_pattern)
+            raise Exception('Pattern does not exist; {}'.format(initial_pattern))
 
     def run(self):
         ''' Main loop '''
@@ -60,7 +60,7 @@ class Life(object):
                         self.printGame()
 
             else:
-                raise Exception('Invalid state: %s' % self.state)
+                raise Exception('Invalid state: {}'.format(self.state))
 
     def quit(self):
         ''' Make sure terminal is in normal mode, clear it, and exit '''
@@ -90,11 +90,12 @@ class Life(object):
         t = self.tickrate
         s = self.state
         stats = ('\x1b[0;0f' # print at 0,0
-                 'w:%d\n'
-                 'h:%d\n'
-                 'steps:%d\n'
-                 'tickrate:%d\n'
-                 '%s\x1b[0m') % (w,h,p,t,s)
+                 'w:{}\n'
+                 'h:{}\n'
+                 'steps:{}\n'
+                 'tickrate:{}\n'
+                 '{}'.format(w,h,p,t,s))
+
         if os.name == 'nt':
             write_ms32(stats[6:], 0, 0)
         else:
