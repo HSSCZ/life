@@ -16,4 +16,7 @@ if __name__ == '__main__':
         usage()
         exit(1)
 
-    Life(8, sys.argv[1]).run()
+    cell_symbol = '\u2b1b\u2b2f'
+    cell_color = '\x1b[38;5;9m'
+
+    Life(8, sys.argv[1], cell_symbol, cell_color).run()

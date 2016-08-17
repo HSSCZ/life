@@ -9,13 +9,15 @@ from .helpers import patterns, readCells, wrapX, wrapY, isBit, getch
 from .display import LifeDisplay
 
 class Life(object):
-    def __init__(self, tickrate, initial_pattern):
+    def __init__(self, tickrate, initial_pattern, cell_symbol, cell_color):
         '''
         Args:
         tickrate: game updates per second
         initial_pattern: an item from helpers.patterns or path to cells file
+        cell_symbol: a character to represent cells
+        cell_color: BASH color code
         '''
-        self.display = LifeDisplay('\u2b1b\u2b1c', '\x1b[38;5;39m')
+        self.display = LifeDisplay(cell_symbol, cell_color)
         self.tickrate = tickrate
         self.state = 'running'
         self.steps = 0
@@ -92,7 +94,7 @@ class Life(object):
                  'h:%d\n'
                  'steps:%d\n'
                  'tickrate:%d\n'
-                 '%s') % (w,h,p,t,s)
+                 '%s\x1b[0m') % (w,h,p,t,s)
         if os.name == 'nt':
             write_ms32(stats[6:], 0, 0)
         else:
